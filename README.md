@@ -344,6 +344,21 @@ Page HTML can be very large. The self-healer truncates to 8,000 characters befor
 - The self-healing pattern works best when you give Claude both the broken selector AND the full page context — without the HTML it can only guess
 
 ---
+## Challenges & What I Actually Fixed
+
+### 1. Failure analyser wasn't detecting failures
+When I first ran Agent 2 against a failing test report it returned "No failures found." 
+I looked into the Playwright JSON output and compared the actual test status against 
+what the parser was checking for. The test had a status of `"unexpected"` but the 
+parser was only looking for `"failed"` — two different values for the same thing. 
+Fixed by updating the condition to catch both.
+
+### 2. Failures were in the wrong location in the JSON
+Even after the status fix, failures still weren't being detected. I printed the raw 
+JSON structure and compared it against where the parser was looking. Playwright nests 
+suites inside suites — the parser was only checking one level deep and missing everything 
+inside the nested structure. Fixed by rewriting the parser to walk the suite tree 
+recursively.
 
 ## Tech Stack
 
