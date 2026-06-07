@@ -27,7 +27,7 @@ Traditional test automation has three pain points this project addresses:
 Each agent tackles one of these problems using Claude as the intelligence layer.
 
 ---
-
+```
 ## Project Structure
 ai-qa-agent/
 ├── agents/
@@ -38,6 +38,8 @@ ai-qa-agent/
 │   └── todo.spec.ts           # Playwright test suite (TypeScript)
 ├── package.json
 └── requirements.txt
+
+```
 
 ---
 
