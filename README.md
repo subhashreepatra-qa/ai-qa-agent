@@ -200,6 +200,11 @@ python3 agents/self_healer.py \
 - **Priority**: High
 
 ---
+> **Note**: Agent 1 generates human-readable test descriptions that a QA engineer 
+> reviews and implements in Playwright. This is intentional — AI-generated test 
+> artifacts should always have a human review step before execution. The login 
+> example above would be implemented as a Playwright spec against a real login page. 
+> The todo.spec.ts suite shows the same pattern applied to the TodoMVC app.
 
 ### Agent 2 — Failure Analyser
 
