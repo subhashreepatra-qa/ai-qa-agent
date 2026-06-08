@@ -27,8 +27,8 @@ Traditional test automation has three pain points this project addresses:
 Each agent tackles one of these problems using Claude as the intelligence layer.
 
 ---
-```
 ## Project Structure
+```
 ai-qa-agent/
 ├── agents/
 │   ├── test_generator.py      # Agent 1 — generates test cases from user stories
@@ -360,6 +360,7 @@ suites inside suites — the parser was only checking one level deep and missing
 inside the nested structure. Fixed by rewriting the parser to walk the suite tree 
 recursively.
 
+---
 ## Tech Stack
 
 | Tool | Purpose |
