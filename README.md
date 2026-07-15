@@ -36,6 +36,9 @@ ai-qa-agent/
 │   └── self_healer.py         # Agent 3 — suggests resilient selectors
 ├── tests/
 │   └── todo.spec.ts           # Playwright test suite (TypeScript)
+├── mcp/
+│   ├── mcp_server.py      # MCP server — exposes agents as tools and prompts
+│   └── mcp_client.py      # CLI client — interactive user input
 ├── package.json
 └── requirements.txt
 
@@ -46,7 +49,7 @@ ai-qa-agent/
 ## Setup
 
 ### Prerequisites
-- Python 3.9+
+- Python 3.12+
 - Node.js 18+
 - Anthropic API key — get one at console.anthropic.com
 
@@ -78,6 +81,13 @@ export ANTHROPIC_API_KEY=your_key_here
 ```bash
 python3 agents/test_generator.py \
   --story "As a user I want to log in with my email and password"
+  
+  python3 agents/test_generator.py \
+  --story "As a user I want to log in with my email and password.
+  Also consider: account auto-unlock timing, audit trail of failed
+  attempts, log security for sensitive data, XSS and SQL injection
+  on input fields."
+
 ```
 
 ### Agent 2 — Analyse failures
@@ -96,6 +106,20 @@ python3 agents/self_healer.py \
 ```
 
 ---
+
+## MCP CLI (New)
+
+Run Agent 1 interactively through the MCP server:
+
+```bash
+# Start the CLI
+python3 mcp/mcp_client.py
+
+# Enter your user story when prompted
+Enter user story: As a user I want to log in with my email and password
+```
+
+This uses the MCP server (`mcp/mcp_server.py`) which exposes Agent 1 as a tool and prompt, accessible from any MCP-compatible client.
 
 ## Example Output
 
@@ -364,9 +388,10 @@ recursively.
 
 | Tool | Purpose |
 |---|---|
-| Claude API (claude-sonnet-4-6) | Test generation, failure analysis, self-healing |
+| Claude API (claude-sonnet-4-6) | Test generation, failure analysis, self-healing | 
+| MCP (Model Context Protocol) | Agent orchestration and CLI interface |
 | Playwright + TypeScript | Test execution |
-| Python 3.9 | Agent scripts |
+| Python 3.12 | Agent scripts |
 
 ---
 
