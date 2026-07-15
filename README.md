@@ -13,6 +13,7 @@ Built to explore how AI can be embedded into a real QA workflow — from test ge
 | **Agent 1 — Test Generator** | User story (plain English) | Structured test cases |
 | **Agent 2 — Failure Analyser** | Playwright JSON report | Plain English failure analysis |
 | **Agent 3 — Self Healer** | Broken selector + page HTML | Resilient alternative selectors |
+| **MCP CLI** | User story (natural language) | Interactive test case generation |
 
 ---
 
