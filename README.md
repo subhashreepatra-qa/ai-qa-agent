@@ -13,7 +13,7 @@ Built to explore how AI can be embedded into a real QA workflow — from test ge
 | **Agent 1 — Test Generator** | User story (plain English) | Structured test cases |
 | **Agent 2 — Failure Analyser** | Playwright JSON report | Plain English failure analysis |
 | **Agent 3 — Self Healer** | Broken selector + page HTML | Resilient alternative selectors |
-| **MCP CLI** | User story (natural language) | Interactive test case generation |
+| **MCP CLI** | User story or Playwright JSON report | Interactive test case generation or failure analysis |
 
 ---
 
@@ -38,8 +38,10 @@ ai-qa-agent/
 ├── tests/
 │   └── todo.spec.ts           # Playwright test suite (TypeScript)
 ├── mcp/
-│   ├── mcp_server.py      # MCP server — exposes agents as tools and prompts
+│   ├── mcp_server.py      # MCP server — exposes Agent 1 and Agent 2 as tools and prompts
 │   └── mcp_client.py      # CLI client — interactive user input
+├── utils/
+│   └── qa_utils.py        # Shared system prompts, report parsing, and summary building used by both agents/ and mcp/
 ├── package.json
 └── requirements.txt
 
@@ -110,17 +112,26 @@ python3 agents/self_healer.py \
 
 ## MCP CLI (New)
 
-Run Agent 1 interactively through the MCP server:
+Run Agent 1 or Agent 2 interactively through the MCP server:
 
 ```bash
 # Start the CLI
 python3 mcp/mcp_client.py
 
-# Enter your user story when prompted
+# Choose a tool
+What do you like to do ?
+1. Generate Test Scenario
+2. Analyze Test Failure
+Enter choice (1 or 2): 1
+
+# Agent 1 — Generate test cases
 Enter user story: As a user I want to log in with my email and password
+
+# Agent 2 — Analyse failures
+Enter path to Playwright JSON report: playwright-report/results.json
 ```
 
-This uses the MCP server (`mcp/mcp_server.py`) which exposes Agent 1 as a tool and prompt, accessible from any MCP-compatible client.
+This uses the MCP server (`mcp/mcp_server.py`) which exposes Agent 1 (`generate_test_scenario`) and Agent 2 (`analyze_test_failure`) as tools and prompts, accessible from any MCP-compatible client. Both the standalone agent scripts and the MCP server share their system prompts and report-parsing logic from `utils/qa_utils.py`, so a fix or prompt tweak in one place applies everywhere.
 
 ## Example Output
 

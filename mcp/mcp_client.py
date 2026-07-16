@@ -59,17 +59,27 @@ class MCPClient:
     async def __aexit__(self, exc_type, exc, tb):
         await self.cleanup()
 async def main(): 
-    print("Starting...")
     try:
         async with MCPClient(command="uv",
                              args=["run", "mcp/mcp_server.py"],
-                             env={**os.environ, "ANTHROPIC_API_KEY":os.environ.get("ANTHROPIC_API_KEY", "")}) as _client:
-            print("Connected..!")
-            user_story = input("Enter user story:")
-            result=await _client.call_tools(
-                tool_name="generate_test_scenario",
-                tool_input={"user_story": user_story}
-            )
+                             env={**os.environ, "ANTHROPIC_API_KEY":os.environ.get("ANTHROPIC_API_KEY", "")}) as _client:    
+            print("What do you like to do ? \n1. Generate Test Scenario \n2. Analyze Test Failure")
+            choice = input("Enter choice (1 or 2): ")
+            if choice == "1":
+                user_story = input("Enter user story:")
+                result=await _client.call_tools(
+                    tool_name="generate_test_scenario",
+                    tool_input={"user_story": user_story}
+                )
+            elif choice == "2":
+                report_path = input("Enter path to Playwright JSON report: ")
+                result=await _client.call_tools(
+                    tool_name="analyze_test_failure",
+                    tool_input={"report_path": report_path}
+                )
+            else:
+                print("Invalid choice. Please enter 1 or 2.")
+                return             
             print(result.content[0].text)
     except Exception as e:
         print(f"Error:  {e}")    

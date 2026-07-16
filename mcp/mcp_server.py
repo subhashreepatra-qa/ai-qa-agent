@@ -1,34 +1,23 @@
+import os
+import sys
+
 import anthropic
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.prompts import base
 from mcp import types
 from pydantic import Field
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils.qa_utils import (
+    CLAUDE_MODEL,
+    FAILED_TEST_ANALYSIS_SYSTEM_PROMPT,
+    TEST_CASE_GENERATION_SYSTEM_PROMPT,
+    build_summary,
+    parse_playwright_report,
+)
+
 # Initialize MCP Server
 mcp=FastMCP("qa-agent")
-
-SYSTEM_PROMPT = """You are a senior QA engineer. Generate structured test cases from user stories.
-
-For every user story, generate test cases covering:
-1. Happy path
-2. Negative tests
-3. Edge cases
-4. Security considerations
-5. Audit Log Consideration
-5. User lock Scenarios
-
-Use this exact format for each test case:
-
-### [TC-001] [Test case name]
-- **Type**: Happy Path | Negative | Edge Case | Security
-- **Preconditions**: [what must be true before the test]
-- **Steps**:
-  1. [step]
-  2. [step]
-- **Expected result**: [what should happen]
-- **Priority**: High | Medium | Low
-
-Generate between 4 and 8 test cases. No code — behaviour and outcomes only."""
 
 #Tool - Claude can call this directly
 @mcp.tool(name="generate_test_scenario",
@@ -40,9 +29,9 @@ def generate_test_scenario(
 ) -> str:
     client=anthropic.Anthropic()
     response=client.messages.create(
-       model="claude-sonnet-4-6",
+       model=CLAUDE_MODEL,
        max_tokens=1500,
-       system=SYSTEM_PROMPT,
+       system=TEST_CASE_GENERATION_SYSTEM_PROMPT,
        messages=[
            {"role": "user", "content": f"Generate test cases for this user story:\n\n{user_story}"}
         ]
@@ -68,6 +57,47 @@ def generate_test_case_prompt(
             After Generating the User Story display them in full.""")
         
     ]
+@mcp.tool(name="analyze_test_failure",
+          description="Analyze failed test cases and provide insights"
+          )
+def analyze_test_failure(report_path: str=Field(description="The Playwright Json file to analyze the failed test cases for")) -> str:
+    failures = parse_playwright_report(report_path)
+
+    if not failures:
+        return "✅ No failures — all tests passed!"
+
+    client = anthropic.Anthropic()
+    summary = build_summary(failures)
+
+    response = client.messages.create(
+        model=CLAUDE_MODEL,
+        max_tokens=2000,
+        system=FAILED_TEST_ANALYSIS_SYSTEM_PROMPT,
+        messages=[
+            {"role": "user", "content": f"Analyse these failures:\n\n{summary}"}
+        ]
+    )
+
+    return response.content[0].text
+
+@mcp.prompt(
+    name="analyze_test_failure_prompt",
+    description="Analyze failed test cases and provide insights"
+)
+def analyze_test_failure_prompt(
+ report_path:str=Field(description="The Playwright Json file to analyze the failed test cases for")   
+)->list:
+    return [          
+            base.UserMessage(content=f"""Analyze failed test cases and provide insights for the Playwright Json file.
+            Use the analyze_test_failure tool to do this.
+            <report_path>
+            {report_path}
+            </report_path>
+
+            After Analyzing the report display the insights in full.""")
+        
+    ]
+
 if __name__== "__main__":
     mcp.run()
 

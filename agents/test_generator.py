@@ -1,35 +1,20 @@
-import anthropic
+import os
+import sys
 import argparse
 
-SYSTEM_PROMPT = """You are a senior QA engineer. Generate structured test cases from user stories.
+import anthropic
 
-For every user story, generate test cases covering:
-1. Happy path
-2. Negative tests
-3. Edge cases
-4. Security considerations
-
-Use this exact format for each test case:
-
-### [TC-001] [Test case name]
-- **Type**: Happy Path | Negative | Edge Case | Security
-- **Preconditions**: [what must be true before the test]
-- **Steps**:
-  1. [step]
-  2. [step]
-- **Expected result**: [what should happen]
-- **Priority**: High | Medium | Low
-
-Generate between 4 and 8 test cases. No code — behaviour and outcomes only."""
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils.qa_utils import CLAUDE_MODEL, TEST_CASE_GENERATION_SYSTEM_PROMPT
 
 
 def generate_test_cases(user_story: str) -> str:
     client = anthropic.Anthropic()
 
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model=CLAUDE_MODEL,
         max_tokens=1500,
-        system=SYSTEM_PROMPT,
+        system=TEST_CASE_GENERATION_SYSTEM_PROMPT,
         messages=[
             {"role": "user", "content": f"Generate test cases for this user story:\n\n{user_story}"}
         ]
